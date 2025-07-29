@@ -1,0 +1,45 @@
+{
+    "manifest_version": 3,
+    "name": "AI Markdown Converter",
+    "version": "1.0.0",
+    "description": "Convert selected text to intelligent markdown using AI",
+
+    "permissions": ["storage", "activeTab", "notifications"],
+    "host_permissions": ["http://localhost:3001/*"],
+
+    "commands": {
+        "capture-text": {
+            "suggested_key": {
+                "default": "Ctrl+Shift+Q"
+            },
+            "description": "Capture selected text and convert to markdown"
+        }
+    },
+
+    "background": {
+        "service_worker": "background.js"
+    },
+
+    "content_scripts": [
+        {
+            "matches": ["<all_urls>"],
+            "js": ["content.js"]
+        }
+    ],
+
+    "action": {
+        "default_popup": "popup.html",
+        "default_title": "AI Markdown Converter",
+        "default_icon": {
+            "16": "icon.png",
+            "48": "icon.png",
+            "128": "icon.png"
+        }
+    },
+
+    "icons": {
+        "16": "icon.png",
+        "48": "icon.png",
+        "128": "icon.png"
+    }
+}

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>AI Markdown Converter</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1 class="title">🤖 AI Notes</h1>
+            <p class="subtitle">Intelligent markdown conversion</p>
+        </div>
+
+        <!-- Instructions -->
+        <div class="instructions">
+            <div class="instruction-item">
+                <span class="hotkey">Ctrl+Shift+Q</span>
+                <span>Capture selected text</span>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats" id="stats">
+            <div class="stat-item">
+                <span class="stat-number" id="noteCount">0</span>
+                <span class="stat-label">Notes</span>
+            </div>
+        </div>
+
+        <!-- Search -->
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="Search notes..." class="search-input">
+        </div>
+
+        <!-- Notes List -->
+        <div class="notes-container">
+            <div id="notesList" class="notes-list">
+                <!-- Notes will be populated here -->
+            </div>
+
+            <div id="emptyState" class="empty-state">
+                <div class="empty-icon">📝</div>
+                <h3>No notes yet</h3>
+                <p>Select text on any webpage and press <strong>Ctrl+Shift+Q</strong> to create your first AI-powered
+                    note!</p>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="actions">
+            <button id="exportBtn" class="btn btn-secondary">📁 Export All</button>
+            <button id="clearBtn" class="btn btn-danger">🗑️ Clear All</button>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <small>Powered by Google Gemini AI</small>
+        </div>
+    </div>
+
+    <script src="popup.js"></script>
+</body>
+
+</html>
