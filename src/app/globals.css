@@ -1,46 +1,138 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* Custom markdown styles */
 .prose {
-  @apply text-gray-900;
+  @apply text-gray-900 dark:text-gray-100;
 }
 
 .prose h1 {
-  @apply text-3xl font-bold text-gray-900 mb-4;
+  @apply text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4;
 }
 
 .prose h2 {
-  @apply text-2xl font-semibold text-gray-800 mb-3 mt-6;
+  @apply text-2xl font-semibold text-gray-800 dark:text-gray-200 mb-3 mt-6;
 }
 
 .prose h3 {
-  @apply text-xl font-semibold text-gray-800 mb-2 mt-4;
+  @apply text-xl font-semibold text-gray-800 dark:text-gray-200 mb-2 mt-4;
 }
 
 .prose p {
-  @apply mb-4 leading-relaxed;
+  @apply mb-4 leading-relaxed text-gray-700 dark:text-gray-300;
 }
 
 .prose code {
-  @apply bg-gray-100 px-2 py-1 rounded text-sm font-mono;
+  @apply bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 px-2 py-1 rounded text-sm font-mono;
 }
 
 .prose pre {
-  @apply bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto;
+  @apply bg-gray-900 dark:bg-gray-950 text-gray-100 dark:text-gray-200 p-4 rounded-lg overflow-x-auto border dark:border-gray-700;
 }
 
 .prose pre code {
-  @apply bg-transparent p-0;
+  @apply bg-transparent p-0 text-inherit;
 }
 
 .prose ul {
-  @apply list-disc list-inside mb-4;
+  @apply list-disc list-inside mb-4 text-gray-700 dark:text-gray-300;
 }
 
 .prose ol {
-  @apply list-decimal list-inside mb-4;
+  @apply list-decimal list-inside mb-4 text-gray-700 dark:text-gray-300;
+}
+
+.prose li {
+  @apply mb-1 text-gray-700 dark:text-gray-300;
 }
 
 .prose blockquote {
-  @apply border-l-4 border-blue-500 pl-4 italic text-gray-700 mb-4;
+  @apply border-l-4 border-blue-500 dark:border-blue-400 pl-4 italic text-gray-700 dark:text-gray-400 mb-4 bg-gray-50 dark:bg-gray-800/50 py-2;
+}
+
+.prose strong {
+  @apply font-semibold text-gray-900 dark:text-gray-100;
+}
+
+.prose em {
+  @apply italic text-gray-800 dark:text-gray-200;
+}
+
+.prose a {
+  @apply text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 underline;
+}
+
+.prose hr {
+  @apply border-gray-300 dark:border-gray-700 my-6;
+}
+
+.prose table {
+  @apply w-full border-collapse border border-gray-300 dark:border-gray-700 mb-4;
+}
+
+.prose th {
+  @apply bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 font-semibold p-2 border border-gray-300 dark:border-gray-700;
+}
+
+.prose td {
+  @apply p-2 border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300;
+}
+
+/* Custom scrollbar for better dark mode */
+.prose pre::-webkit-scrollbar {
+  @apply h-2;
+}
+
+.prose pre::-webkit-scrollbar-track {
+  @apply bg-gray-800 dark:bg-gray-900 rounded;
+}
+
+.prose pre::-webkit-scrollbar-thumb {
+  @apply bg-gray-600 dark:bg-gray-700 rounded hover:bg-gray-500 dark:hover:bg-gray-600;
+}
+
+/* Additional typography improvements */
+.prose h1:first-child,
+.prose h2:first-child,
+.prose h3:first-child {
+  @apply mt-0;
+}
+
+.prose h1 + p,
+.prose h2 + p,
+.prose h3 + p {
+  @apply mt-2;
+}
+
+/* Better spacing for lists */
+.prose ul li,
+.prose ol li {
+  @apply leading-relaxed;
+}
+
+.prose ul ul,
+.prose ol ol,
+.prose ul ol,
+.prose ol ul {
+  @apply mt-2 mb-2;
+}
+
+/* Code syntax highlighting improvements */
+.prose pre[class*="language-"] {
+  @apply bg-gray-900 dark:bg-gray-950;
+}
+
+.prose code[class*="language-"] {
+  @apply text-gray-100 dark:text-gray-200;
+}
+
+/* Selection styling */
+.prose ::selection {
+  @apply bg-blue-200 dark:bg-blue-800 text-gray-900 dark:text-gray-100;
+}
+
+/* Focus styles for accessibility */
+.prose a:focus {
+  @apply outline-2 outline-blue-500 dark:outline-blue-400 outline-offset-2;
 }

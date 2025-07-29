@@ -1,16 +1,22 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import ReactMarkdown from 'react-markdown';
+import { ThemeProvider } from '../components/ThemeProvider';
+import Header from '../components/Header';
+import NoteCard from '../components/NoteCard';
+import EmptyState from '../components/EmptyState';
 
-export default function MarkdownPreview() {
-  const [markdown, setMarkdown] = useState('# AI Markdown Converter\n\nWaiting for content...');
+function MarkdownPreview() {
+  const [notes, setNotes] = useState([]);
   const [status, setStatus] = useState('Disconnected');
   const [isConnected, setIsConnected] = useState(false);
+  const [currentTopic, setCurrentTopic] = useState('');
   const wsRef = useRef(null);
 
   useEffect(() => {
+    loadNotesFromStorage();
     connectWebSocket();
+    
     return () => {
       if (wsRef.current) {
         wsRef.current.close();
@@ -18,20 +24,54 @@ export default function MarkdownPreview() {
     };
   }, []);
 
+  useEffect(() => {
+    if (notes.length > 0) {
+      saveNotesToStorage();
+    }
+  }, [notes]);
+
+  const loadNotesFromStorage = () => {
+    try {
+      const saved = localStorage.getItem('ai-markdown-notes');
+      const savedTopic = localStorage.getItem('ai-markdown-topic');
+      if (saved) {
+        const parsedNotes = JSON.parse(saved);
+        const thirtyMinutesAgo = Date.now() - (30 * 60 * 1000);
+        const recentNotes = parsedNotes.filter(note => 
+          new Date(note.timestamp).getTime() > thirtyMinutesAgo
+        );
+        setNotes(recentNotes);
+      }
+      if (savedTopic) {
+        setCurrentTopic(savedTopic);
+      }
+    } catch (error) {
+      console.error('Failed to load notes from storage:', error);
+    }
+  };
+
+  const saveNotesToStorage = () => {
+    try {
+      localStorage.setItem('ai-markdown-notes', JSON.stringify(notes));
+      localStorage.setItem('ai-markdown-topic', currentTopic);
+    } catch (error) {
+      console.error('Failed to save notes to storage:', error);
+    }
+  };
+
   const connectWebSocket = () => {
     try {
       wsRef.current = new WebSocket('ws://localhost:3001/ws');
       
       wsRef.current.onopen = () => {
-        console.log('🔌 Connected to WebSocket server');
+        console.log('Connected to WebSocket server');
         setIsConnected(true);
         setStatus('Connected');
-        setMarkdown('# 🤖 AI Markdown Converter\n\n✅ **Connected to server**\n\nWaiting for content from browser extension...\n\n## How to use:\n1. Install the browser extension\n2. Select text on any webpage\n3. Press `Ctrl+Shift+Q` to capture\n4. Watch the AI-processed markdown appear here!\n\n---\n\n*Real-time markdown preview powered by WebSocket*');
       };
 
       wsRef.current.onmessage = (event) => {
         const data = JSON.parse(event.data);
-        console.log('📨 Received:', data);
+        console.log('Received:', data);
 
         switch (data.type) {
           case 'connection':
@@ -40,33 +80,56 @@ export default function MarkdownPreview() {
             
           case 'processing_start':
             setStatus('Processing...');
-            setMarkdown(`# 🔄 Processing Text\n\n**Source:** ${data.sourceUrl}\n\n**Preview:**\n${data.textPreview}\n\n---\n\n*AI is analyzing and formatting your content...*`);
+            const processingNote = {
+              id: `processing-${Date.now()}`,
+              type: 'processing',
+              content: `Processing text from ${data.sourceDomain}\n\n${data.textPreview}`,
+              timestamp: new Date().toISOString(),
+              sourceUrl: data.sourceUrl
+            };
+            setNotes(prev => [...prev, processingNote]);
             break;
             
           case 'markdown_ready':
             setStatus('Ready');
-            setMarkdown(data.note.processedMarkdown);
+            setNotes(prev => {
+              const filtered = prev.filter(note => !note.id.startsWith('processing-'));
+              return [...filtered, {
+                id: data.note.id,
+                type: 'markdown',
+                content: data.note.processedMarkdown,
+                title: data.note.title,
+                timestamp: data.note.processedAt,
+                sourceUrl: data.note.sourceUrl,
+                sourceDomain: data.note.sourceDomain
+              }];
+            });
             break;
             
           case 'processing_error':
             setStatus('Error');
-            setMarkdown(`# ❌ Processing Error\n\n**Error:** ${data.error}\n\n**Message:** ${data.message}\n\n---\n\n*Please check the server logs and try again.*`);
+            setNotes(prev => {
+              const filtered = prev.filter(note => !note.id.startsWith('processing-'));
+              return [...filtered, {
+                id: `error-${Date.now()}`,
+                type: 'error',
+                content: `Processing Error\n\n${data.error}\n\n${data.message}`,
+                timestamp: new Date().toISOString()
+              }];
+            });
             break;
         }
       };
 
       wsRef.current.onclose = () => {
-        console.log('🔌 WebSocket connection closed');
+        console.log('WebSocket connection closed');
         setIsConnected(false);
         setStatus('Disconnected');
-        setMarkdown('# ⚠️ Connection Lost\n\nWebSocket connection to server was lost.\n\n**Trying to reconnect...**');
-        
-        // Auto-reconnect after 3 seconds
         setTimeout(connectWebSocket, 3000);
       };
 
       wsRef.current.onerror = (error) => {
-        console.error('🔌 WebSocket error:', error);
+        console.error('WebSocket error:', error);
         setIsConnected(false);
         setStatus('Error');
       };
@@ -77,63 +140,81 @@ export default function MarkdownPreview() {
     }
   };
 
+  const copyToClipboard = async (content) => {
+    try {
+      await navigator.clipboard.writeText(content);
+    } catch (error) {
+      console.error('Failed to copy:', error);
+    }
+  };
+
+  const downloadMarkdown = (content, title = 'markdown') => {
+    const blob = new Blob([content], { type: 'text/markdown' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${title.replace(/[^a-zA-Z0-9]/g, '_')}.md`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const downloadAllNotes = () => {
+    const allContent = notes
+      .filter(note => note.type === 'markdown')
+      .map(note => `# ${note.title || 'Note'}\n\n${note.content}\n\n---\n`)
+      .join('\n');
+    
+    downloadMarkdown(allContent, currentTopic || 'all_notes');
+  };
+
+  const resetCanvas = () => {
+    setNotes([]);
+    setCurrentTopic('');
+    localStorage.removeItem('ai-markdown-notes');
+    localStorage.removeItem('ai-markdown-topic');
+  };
+
+  const markdownNotesCount = notes.filter(n => n.type === 'markdown').length;
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-6xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">
-                🤖 AI Markdown Preview
-              </h1>
-              <p className="text-sm text-gray-600">
-                Real-time markdown processing with WebSocket
-              </p>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-                isConnected 
-                  ? 'bg-green-100 text-green-800' 
-                  : 'bg-red-100 text-red-800'
-              }`}>
-                <div className={`w-2 h-2 rounded-full mr-2 ${
-                  isConnected ? 'bg-green-500' : 'bg-red-500'
-                }`}></div>
-                {status}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 transition-colors">
+      <Header
+        currentTopic={currentTopic}
+        setCurrentTopic={setCurrentTopic}
+        isConnected={isConnected}
+        status={status}
+        onDownloadAll={downloadAllNotes}
+        onResetCanvas={resetCanvas}
+        notesCount={markdownNotesCount}
+      />
 
-      {/* Main Content */}
-      <div className="max-w-6xl mx-auto px-4 py-8">
-        <div className="bg-white rounded-lg shadow-sm border">
-          <div className="px-6 py-4 border-b">
-            <h2 className="text-lg font-semibold text-gray-900">
-              Markdown Preview
-            </h2>
-            <p className="text-sm text-gray-600">
-              Content will appear here when processed by AI
-            </p>
+      <main className="max-w-4xl mx-auto px-4 py-6">
+        {notes.length === 0 ? (
+          <EmptyState isConnected={isConnected} />
+        ) : (
+          <div className="space-y-4">
+            {notes.map((note, index) => (
+              <NoteCard
+                key={note.id}
+                note={note}
+                index={index}
+                onCopy={copyToClipboard}
+                onDownload={downloadMarkdown}
+              />
+            ))}
           </div>
-          <div className="p-6">
-            <div className="prose prose-lg max-w-none">
-              <ReactMarkdown>{markdown}</ReactMarkdown>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Footer */}
-      <div className="bg-white border-t mt-12">
-        <div className="max-w-6xl mx-auto px-4 py-4">
-          <p className="text-center text-sm text-gray-500">
-            Powered by Google Gemini AI • WebSocket Connection • Next.js
-          </p>
-        </div>
-      </div>
+        )}
+      </main>
     </div>
+  );
+}
+
+export default function Page() {
+  return (
+    <ThemeProvider>
+      <MarkdownPreview />
+    </ThemeProvider>
   );
 }
