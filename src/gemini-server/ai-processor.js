@@ -35,7 +35,7 @@ MANDATORY RULES:
    • Title-case/ALL-CAPS lines → \`##\` heading
    • Lines starting with -, *, 1., • → proper markdown lists
    • For numbered lists: keep number and content on SAME line (e.g., "1. Content here")
-   • Maintain indentation and blank lines
+   
 8. Smart parsing:
    • If fragmentary but interpretable: repair and complete logically
    • If too short/random/unclear: create meaningful summary
@@ -43,7 +43,7 @@ MANDATORY RULES:
    • If lacks context: add brief intro sentence
    • Always prefer concise, clear, usable notes
 
-KEEP every sentence & line-break; DON'T summarize or drop details unless fragment is meaningless.
+KEEP every sentence; DON'T summarize or drop details unless fragment is meaningless.
 
 ───────────────────────────── EXAMPLES ──────────────────────────────
 
