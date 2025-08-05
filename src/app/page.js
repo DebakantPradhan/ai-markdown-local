@@ -148,6 +148,19 @@ function MarkdownPreview() {
     }
   };
 
+  const copyAllNotes = async () => {
+    const allContent = notes
+      .filter(note => note.type === 'markdown')
+      .map((note, index) => `# Note ${index + 1}: ${note.title || 'Untitled'}\n\n${note.content}`)
+      .join('\n\n---\n\n');
+    
+    try {
+      await navigator.clipboard.writeText(allContent);
+    } catch (error) {
+      console.error('Failed to copy all notes:', error);
+    }
+  };
+
   const downloadMarkdown = (content, title = 'markdown') => {
     const blob = new Blob([content], { type: 'text/markdown' });
     const url = URL.createObjectURL(blob);
@@ -186,15 +199,16 @@ function MarkdownPreview() {
         isConnected={isConnected}
         status={status}
         onDownloadAll={downloadAllNotes}
+        onCopyAll={copyAllNotes}
         onResetCanvas={resetCanvas}
         notesCount={markdownNotesCount}
       />
 
-      <main className="max-w-4xl mx-auto px-4 py-6">
+      <main className="max-w-6xl mx-auto px-6 py-8">
         {notes.length === 0 ? (
           <EmptyState isConnected={isConnected} />
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-6">
             {notes.map((note, index) => (
               <NoteCard
                 key={note.id}

@@ -1,76 +1,110 @@
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { vscDarkPlus, oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { oneLight } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
-export default function MarkdownRenderer({ content, type = 'markdown' }) {
-	const getTypeStyles = () => {
-		switch (type) {
-			case 'processing':
-				return 'text-blue-600 dark:text-blue-400';
-			case 'error':
-				return 'text-red-600 dark:text-red-400';
-			default:
-				return 'text-gray-900 dark:text-gray-100';
-		}
-	};
+export default function MarkdownRenderer({ content, type = 'markdown', theme = 'light' }) {
+    const getTypeStyles = () => {
+        switch (type) {
+            case 'processing':
+                return 'text-blue-600 dark:text-blue-400';
+            case 'error':
+                return 'text-red-600 dark:text-red-400';
+            default:
+                return 'text-gray-900 dark:text-gray-100';
+        }
+    };
 
-	return (
-		<div className={`prose prose-sm dark:prose-invert max-w-none ${getTypeStyles()}`}>
-			<ReactMarkdown
-				components={{
-					h1: ({ children }) => (
-						<h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-3 mt-0">
-							{children}
-						</h1>
-					),
-					h2: ({ children }) => (
-						<h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2 mt-4">
-							{children}
-						</h2>
-					),
-					h3: ({ children }) => (
-						<h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 mb-2 mt-3">
-							{children}
-						</h3>
-					),
-					p: ({ children }) => (
-						<p className="text-gray-700 dark:text-gray-300 mb-3 leading-relaxed">
-							{children}
-						</p>
-					),
-					ul: ({ children }) => (
-						<ul className="text-gray-700 dark:text-gray-300 mb-3 pl-4 space-y-1">
-							{children}
-						</ul>
-					),
-					ol: ({ children }) => (
-						<ol className="text-gray-700 dark:text-gray-300 mb-3 pl-4 space-y-1">
-							{children}
-						</ol>
-					),
-					li: ({ children }) => <li className="leading-relaxed">{children}</li>,
-					blockquote: ({ children }) => (
-						<blockquote className="border-l-4 border-gray-300 dark:border-gray-600 pl-4 italic text-gray-600 dark:text-gray-400 mb-3">
-							{children}
-						</blockquote>
-					),
-					code: ({ inline, children }) =>
-						inline ? (
-							<code className="bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 px-1 py-0.5 rounded text-sm font-mono">
-								{children}
-							</code>
-						) : (
-							<code className="block bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 p-3 rounded text-sm font-mono overflow-x-auto">
-								{children}
-							</code>
-						),
-					strong: ({ children }) => (
-						<strong className="font-semibold text-gray-900 dark:text-gray-100">
-							{children}
-						</strong>
-					),
-				}}
-			>
-				{content}
-			</ReactMarkdown>
-		</div>
-	);
+    const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+
+    return (
+        <div className={`prose prose-sm dark:prose-invert max-w-none ${getTypeStyles()}`}>
+            <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                components={{
+                    code: ({ node, inline, className, children, ...props }) => {
+                        const match = /language-(\w+)/.exec(className || '');
+                        const language = match ? match[1] : '';
+                        
+                        return !inline && language ? (
+                            <SyntaxHighlighter
+                                style={isDark ? oneDark : oneLight}
+                                language={language}
+                                PreTag="div"
+                                className="rounded-lg text-sm"
+                                {...props}
+                            >
+                                {String(children).replace(/\n$/, '')}
+                            </SyntaxHighlighter>
+                        ) : (
+                            <code className="bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 px-1.5 py-0.5 rounded text-sm font-mono" {...props}>
+                                {children}
+                            </code>
+                        );
+                    },
+                    h1: ({ children }) => (
+                        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4 mt-0 border-b border-gray-200 dark:border-gray-700 pb-2">
+                            {children}
+                        </h1>
+                    ),
+                    h2: ({ children }) => (
+                        <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-3 mt-6">
+                            {children}
+                        </h2>
+                    ),
+                    h3: ({ children }) => (
+                        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2 mt-4">
+                            {children}
+                        </h3>
+                    ),
+                    p: ({ children }) => (
+                        <p className="text-gray-700 dark:text-gray-300 mb-4 leading-relaxed">
+                            {children}
+                        </p>
+                    ),
+                    ul: ({ children }) => (
+                        <ul className="text-gray-700 dark:text-gray-300 mb-4 pl-6 space-y-1 list-disc">
+                            {children}
+                        </ul>
+                    ),
+                    ol: ({ children }) => (
+                        <ol className="text-gray-700 dark:text-gray-300 mb-4 pl-6 space-y-1 list-decimal">
+                            {children}
+                        </ol>
+                    ),
+                    li: ({ children }) => <li className="leading-relaxed">{children}</li>,
+                    blockquote: ({ children }) => (
+                        <blockquote className="border-l-4 border-blue-500 dark:border-blue-400 pl-4 italic text-gray-600 dark:text-gray-400 mb-4 bg-gray-50 dark:bg-gray-800/50 py-2 rounded-r">
+                            {children}
+                        </blockquote>
+                    ),
+                    table: ({ children }) => (
+                        <div className="overflow-x-auto mb-4">
+                            <table className="min-w-full border border-gray-200 dark:border-gray-700 rounded-lg">
+                                {children}
+                            </table>
+                        </div>
+                    ),
+                    th: ({ children }) => (
+                        <th className="border border-gray-200 dark:border-gray-700 px-4 py-2 bg-gray-50 dark:bg-gray-800 font-semibold text-left">
+                            {children}
+                        </th>
+                    ),
+                    td: ({ children }) => (
+                        <td className="border border-gray-200 dark:border-gray-700 px-4 py-2">
+                            {children}
+                        </td>
+                    ),
+                    strong: ({ children }) => (
+                        <strong className="font-semibold text-gray-900 dark:text-gray-100">
+                            {children}
+                        </strong>
+                    ),
+                }}
+            >
+                {content}
+            </ReactMarkdown>
+        </div>
+    );
 }
