@@ -127,7 +127,7 @@ Follow these rules exactly. Output only the JSON object.`;
 			.replace(/```\s*$/gm, '') // Remove closing ```
 			.trim();
 
-		console.log('Cleaned response for JSON parsing:', responseText);
+		// console.log('Cleaned response for JSON parsing:', responseText);
 
 		try {
 			const parsed = JSON.parse(responseText);
@@ -135,7 +135,7 @@ Follow these rules exactly. Output only the JSON object.`;
 			// The AI already provides properly formatted markdown - don't modify it
 			let processedMarkdown = parsed.markdown || text;
 
-			console.log('Final markdown to send:', processedMarkdown);
+			// console.log('Final markdown to send:', processedMarkdown);
 
 			return {
 				title: parsed.title || extractTitle(text),
