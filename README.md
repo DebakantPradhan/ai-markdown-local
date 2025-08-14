@@ -1,9 +1,9 @@
 
 
-# Smart Markdown Studio - *Local AI-powered note-taking system*
+# Smart Markdown Studio
 
 
-Smart Markdown Studio is a privacy-first, fully local note-taking system that that lets you capture any note from a webpage in a single click and instantly turn it into clean, structured Markdown-  Note.
+Smart Markdown Studio is a privacy-first, AI powered fully local note-taking system that that lets you capture any note from web in a single click and instantly turn it into clean, structured Markdown Note.
 
 The system consists of:
 - **Chrome Extension** — Capture text from any website using a shortcut.
