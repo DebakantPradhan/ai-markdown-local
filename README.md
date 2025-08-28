@@ -24,7 +24,12 @@ The system consists of:
 
 ## Demo Video
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/0dIz31IWYZU?si=2lSUTE-fSVM_b2pX" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+<div align="center">
+  <a href="https://youtu.be/0dIz31IWYZU">
+    <img src="https://img.youtube.com/vi/0dIz31IWYZU/maxresdefault.jpg" alt="Smart Markdown Studio Demo" width="600">
+  </a>
+  <p>Click to watch demo video</p>
+</div>
 
 ## Installation & Setup
 
