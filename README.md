@@ -1,5 +1,3 @@
-
-
 # Smart Markdown Studio
 
 
@@ -10,6 +8,7 @@ The system consists of:
 - **Local Express/Gemini Server** — Processes text with the Gemini API according to customizable formatting rules.
 - **Dashboard** — View, search, copy, and export notes in real time.
 
+- [see architecture](#system-architecture)
 ---
 
 ## Features
@@ -22,6 +21,10 @@ The system consists of:
 - **Theme Support**: Light and dark themes inspired by Obsidian and Notion.
 
 ---
+
+## Demo Video
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/0dIz31IWYZU?si=2lSUTE-fSVM_b2pX" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 
 ## Installation & Setup
 
@@ -95,6 +98,10 @@ dist/
 2. **Gemini Server** — Formats content into structured Markdown according to the system prompt.
 3. **Dashboard (Next.js)** — Receives WebSocket updates and instantly displays the note.
 4. **User Actions** — Copy, export, search, tag, or manage notes.
+
+## System Architecture
+
+![AI Markdown System Architecture](./assets/architecture.png)
 
 ---
 
